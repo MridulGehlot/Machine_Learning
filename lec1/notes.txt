@@ -1,0 +1,74 @@
+Gradient -> Degree of something which goes up or down
+
+P1 (1,2)
+P2 (2,4)
+
+m = (4-2)/(2-1) = 2/1 = 2
+
+let c=1 from graph
+let x=1 y=2(1) + 1 = 3
+let x=2 y=2(2) + 1 = 5
+let x=3 y=2(3) + 1 = 7
+
+Now Suppose we have data of marks of students 
+Like P,C,M,E,H 
+and we need to find Total Marks , Percentage ???
+Do We Require Ai/ML to predict this ???
+No, We Have Direct Formulas 
+
+So when we require Prediction (Sales data ??)
+IceCream Sales (Temp. vs sales)
+
+
+---------------------------------------------------
+
+^
+y = Predicted Value
+
+		     ^
+let y=7 original and y =4 for some x
+
+	  ^
+so, error=y - y
+
+it can be Positive or Negative
+So we take Square of it
+
+error = (y hat - y)^2
+Now Error is Always Positive
+
+we have a lot of error values 
+so we take average of it
+
+Called  ->   Cost Function/ Loss Function/ Mean Squared Error (MSE)
+
+Now We have 1 Scaler Error
+And a time will come when error value cannot be decreased 
+Objective => To Minimize to error value
+To Have minimum Loss/Cost Function
+
+----------------------------------------------
+
+1 Full Training Cycle
+
+1. Random m & c
+2. given 5 lac points(x,y) we got 5 lac y_hat
+3. Then we applied cost function to get 1 error
+
+Then We Update value of m & c and again same loop
+
+------------------------------------------------
+
+Hypothesis Function -> To Predict
+Cost/Loss  Function -> To find error
+Model Convergence   -> Optimal Line / Line Fit / Minimum Error
+
+----------------------------------------------------
+
+Linear Regression Using Gradient Descent(brought down)
+going in a state/ prediction state where it is least worse
+
+Binary Classification (yes/no) -> 2 class
+Logistic Regression Using Gradient Descent (multi class)
+
+Supervised Learning (We have data & output)
