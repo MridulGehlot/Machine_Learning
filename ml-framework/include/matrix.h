@@ -1,5 +1,6 @@
 #pragma once
 #include<iostream>
+#include<dataset_utils.h>
 #include<vector>
 #include<cstdint>
 #include<csv.h>
@@ -74,6 +75,7 @@ matrix operator^(uint64_t value);
 //one more mehtod required to calculate element wise power
 friend class csv;
 friend class random_engine;
+friend class dataset_utils;
 friend matrix operator+(double value,matrix &other);
 friend matrix operator-(double value,matrix &other);
 friend matrix operator*(double value,matrix &other);

@@ -1,0 +1,1 @@
+g++ %1 -I ..\ml-framework\include -L ..\ml-framework\lib -lml_framework -o %2

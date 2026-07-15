@@ -1,8 +1,9 @@
 #include<iostream>
 #include<stdlib.h>
-#define TRAINING_CYCLES 10000000
+#define TRAINING_CYCLES 100000
 #define LEARNING_RATE 0.0001
-#define STOPPER 1000000
+#define STOPPER 10000
+#include<chrono>
 using namespace std;
 int main()
 {
@@ -188,6 +189,8 @@ return 1;
 
 int left_operand_rows,left_operand_columns,right_operand_rows,right_operand_columns;
 
+auto start_time=chrono::high_resolution_clock::now();
+
 //step 4 train model
 int cycle=1;
 double squared_sum_error;
@@ -271,6 +274,9 @@ model[i*y_columns+j]-=((xte[i*y_columns+j]*LEARNING_RATE)/x_rows);
 ++cycle;
 }
 
+auto end_time=chrono::high_resolution_clock::now();
+chrono::duration<double> ttime=end_time-start_time;
+cout<<"Time in Training - "<<ttime.count()<<endl;
 
 if(x!=NULL) free(x);
 if(y!=NULL) free(y);
