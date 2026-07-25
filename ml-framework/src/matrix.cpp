@@ -90,7 +90,7 @@ void matrix::set(uint64_t row_index,uint64_t column_index,double value)
 {
 if(row_index>=this->_rows || column_index>=this->_columns)
 {
-throw new ml_exception("Index out of bounds");
+throw ml_exception("Index out of bounds");
 }
 if(flags & IDENTITY)
 {
@@ -110,7 +110,7 @@ double matrix::get(uint64_t row_index,uint64_t column_index)
 {
 if(row_index>=this->_rows || column_index>=this->_columns)
 {
-throw new ml_exception("Index out of bounds");
+throw ml_exception("Index out of bounds");
 }
 if(flags & IDENTITY)
 {
@@ -153,7 +153,7 @@ void matrix::save_to_binary(string filename)
 //we will covenrt to network byte order and write and use same to read
 //for now i am not implementing this
 FILE *f=fopen(filename.c_str(),"wb");
-if(f==nullptr) throw new ml_exception("Unable to save in a file : "+filename);
+if(f==nullptr) throw ml_exception("Unable to save in a file : "+filename);
 fwrite(&(this->_rows),sizeof(uint64_t),1,f);
 fwrite(&(this->_columns),sizeof(uint64_t),1,f);
 fwrite(this->collection.data(),this->_rows*this->_columns*sizeof(double),1,f);
@@ -198,12 +198,12 @@ this->m=m;
 //for operator[] access
 matrix::matrix_row matrix::operator[](uint64_t row_index)
 {
-if(row_index>=this->_rows) throw new ml_exception("Index out of bounds");
+if(row_index>=this->_rows) throw ml_exception("Index out of bounds");
 return matrix::matrix_row(row_index,this);
 }
 matrix::matrix_cell matrix::matrix_row::operator[](uint64_t column_index)
 {
-if(column_index>=this->m->_columns) throw new ml_exception("Index out of bounds");
+if(column_index>=this->m->_columns) throw ml_exception("Index out of bounds");
 return matrix::matrix_cell(this->row_index,column_index,this->m);
 }
 
@@ -234,41 +234,41 @@ return tmp;
 }
 matrix matrix::operator*(matrix &other)
 {
-if(this->_columns!=other._rows) throw new ml_exception("Invalid Dimensions (row - column mismatch) ");
+if(this->_columns!=other._rows) throw ml_exception("Invalid Dimensions (row - column mismatch) ");
 matrix tmp(this->_rows,other._columns);
 matrix_math::multiply(tmp.collection.data(),this->collection.data(),this->_rows,this->_columns,other.collection.data(),other._rows,other._columns);
 return tmp;
 }
 matrix matrix::operator+(matrix &other)
 {
-if(this->_rows!=other._rows || this->_columns!=other._columns) throw new ml_exception("Invalid Dimensions (row - column mismatch) ");
+if(this->_rows!=other._rows || this->_columns!=other._columns) throw ml_exception("Invalid Dimensions (row - column mismatch) ");
 matrix tmp(this->_rows,this->_columns);
 matrix_math::add(tmp.collection.data(),this->collection.data(),other.collection.data(),this->collection.size());
 return tmp;
 }
 matrix matrix::operator-(const matrix &other)
 {
-if(this->_rows!=other._rows || this->_columns!=other._columns) throw new ml_exception("Invalid Dimensions (row - column mismatch) ");
+if(this->_rows!=other._rows || this->_columns!=other._columns) throw ml_exception("Invalid Dimensions (row - column mismatch) ");
 matrix tmp(this->_rows,this->_columns);
 matrix_math::subtract(tmp.collection.data(),this->collection.data(),other.collection.data(),this->collection.size());
 return tmp;
 }
 matrix matrix::operator*=(matrix &other)
 {
-if(this->_columns!=other._rows) throw new ml_exception("Invalid Dimensions (row - column mismatch) ");
+if(this->_columns!=other._rows) throw ml_exception("Invalid Dimensions (row - column mismatch) ");
 matrix tmp(this->_rows,this->_columns);
 matrix_math::multiply(tmp.collection.data(),this->collection.data(),this->_rows,this->_columns,other.collection.data(),other._rows,other._columns);
 return tmp;
 }
 matrix matrix::operator+=(matrix &other)
 {
-if(this->_rows!=other._rows || this->_columns!=other._columns) throw new ml_exception("Invalid Dimensions (row - column mismatch) ");
+if(this->_rows!=other._rows || this->_columns!=other._columns) throw ml_exception("Invalid Dimensions (row - column mismatch) ");
 matrix_math::add(this->collection.data(),this->collection.data(),other.collection.data(),this->collection.size());
 return *this;
 }
 matrix matrix::operator-=(matrix &other)
 {
-if(this->_rows!=other._rows || this->_columns!=other._columns) throw new ml_exception("Invalid Dimensions (row - column mismatch) ");
+if(this->_rows!=other._rows || this->_columns!=other._columns) throw  ml_exception("Invalid Dimensions (row - column mismatch) ");
 matrix_math::subtract(this->collection.data(),this->collection.data(),other.collection.data(),this->collection.size());
 return *this;
 }

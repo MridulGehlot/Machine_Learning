@@ -10,7 +10,7 @@ double value;
 char ch;
 FILE *f;
 f=fopen(datasetFileName.c_str(),"rb"); //we will read raw byte by byte
-if(f==nullptr) throw new ml_exception("Files Does Not Exists\n");
+if(f==nullptr) throw ml_exception("Files Does Not Exists\n");
 //step1 was to count number of rows and columns in dataset
 uint64_t dataset_column_count,dataset_row_count;
 uint64_t which_column_from_dataset,which_row_from_dataset;

@@ -1,1 +1,1 @@
-g++ linreg.cpp -I ..\include -L ..\lib -lml_framework -o linreg.exe
+g++ %1 -I ..\include -L ..\lib -lml_framework -o %2
