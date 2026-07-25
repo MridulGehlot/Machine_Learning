@@ -6,6 +6,8 @@
 #include<csv.h>
 #include<random_engine.h>
 #define IDENTITY 2
+#define FMT_BINARY 2
+#define FMT_CSV 4
 using namespace std;
 class matrix
 {
@@ -14,6 +16,8 @@ uint64_t _columns;
 uint64_t flags;
 vector<double> collection;
 void resize(uint64_t rows,uint64_t columns);  //not safe
+void save_to_binary(string filename);
+void save_to_csv(string filename);
 public:
 class matrix_row;
 class matrix_cell
@@ -48,7 +52,7 @@ uint64_t columns();
 void set(uint64_t row_index,uint64_t column_index,double value);
 double get(uint64_t row_index,uint64_t column_index);
 matrix as_transposed();
-void save(string filename);
+void save(string filename,uint8_t flags);
 static matrix identity(uint64_t rows);
 matrix_row operator[](uint64_t row_index);
 //arithmetic operators
@@ -74,8 +78,10 @@ matrix operator-();
 matrix operator^(uint64_t value);
 //one more mehtod required to calculate element wise power
 friend class csv;
+friend class scaler;
 friend class random_engine;
 friend class dataset_utils;
+friend class ml_math;
 friend matrix operator+(double value,matrix &other);
 friend matrix operator-(double value,matrix &other);
 friend matrix operator*(double value,matrix &other);

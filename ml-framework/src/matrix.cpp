@@ -132,7 +132,22 @@ tmp.collection[j*tmp._columns+i]=this->collection[i*this->_columns+j];
 }
 return tmp;
 }
-void matrix::save(string filename)
+void matrix::save_to_csv(string filename)
+{
+FILE *f;
+f=fopen(filename.c_str(),"w");
+if(f==nullptr) throw ml_exception(string("Unable to write in file : ")+filename);
+uint64_t r,c,ep;
+ep=this->_columns-1;
+double *ptr=this->collection.data();
+for(r=0;r<this->_rows;++r)
+{
+for(c=0;c<ep;++c) fprintf(f,"%.17g,",ptr[r*this->_columns+c]);
+fprintf(f,"%.17g\n",ptr[r*this->_columns+c]);
+}
+fclose(f);
+}
+void matrix::save_to_binary(string filename)
 {
 //Little Endian and Big Endian
 //we will covenrt to network byte order and write and use same to read
@@ -144,6 +159,13 @@ fwrite(&(this->_columns),sizeof(uint64_t),1,f);
 fwrite(this->collection.data(),this->_rows*this->_columns*sizeof(double),1,f);
 fclose(f);
 }
+void matrix::save(string filename,uint8_t flags)
+{
+if(flags==FMT_BINARY) save_to_binary(filename);
+else if(flags==FMT_CSV) save_to_csv(filename);
+else throw ml_exception("Invalid File Format");
+}
+
 matrix matrix::identity(uint64_t rows)
 {
 return matrix(rows,rows,IDENTITY);
