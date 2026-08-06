@@ -8,6 +8,7 @@
 #include<ml_exception.h>
 #include<random>
 #include<algorithm>
+#include<unordered_set>
 #define BUFFER_SIZE 4096
 using namespace std;
 
@@ -245,4 +246,174 @@ free(ptr);
 close(fd1);
 close(fd2);
 close(file_descriptor);
+}
+
+void dataset_utils::remove_columns(string dataset,string filename,vector<uint32_t> &columns_index)
+{
+if(dataset.empty() || filename.empty()) throw ml_exception("File Name Required");
+if(columns_index.empty()) throw ml_exception("Invalid Columns Selection");
+int file_descriptor,wd;
+struct stat s;
+if(stat(dataset.c_str(),&s)<0) throw ml_exception("Invalid Dataset File Size");
+file_descriptor=open(dataset.c_str(),O_RDONLY | O_BINARY);
+if(file_descriptor<0) throw ml_exception("Unable to Open File");
+unsigned char buffer[BUFFER_SIZE];
+uint64_t bytes_fetched,index;
+uint64_t column_count=1;
+bool flag=false;
+//apply validations
+while(1)
+{
+bytes_fetched=read(file_descriptor,buffer,BUFFER_SIZE);
+if(bytes_fetched==0) break;
+for(index=0;index<bytes_fetched;++index)
+{
+if(buffer[index]==',')
+{
+++column_count;
+}
+else if(buffer[index]=='\n') 
+{
+flag=true;
+break;
+}
+} //for loop ends here
+if(flag) break;
+} //while loop ends here
+sort(columns_index.begin(),columns_index.end());
+//remove duplicates
+auto new_end=unique(columns_index.begin(),columns_index.end());
+columns_index.erase(new_end,columns_index.end());
+if(columns_index.size()==0 || columns_index[columns_index.size()-1]>=column_count)
+{
+close(file_descriptor);
+throw ml_exception("Invalid Column Indexes");
+}
+unordered_set<uint32_t> st(columns_index.begin(),columns_index.end());
+lseek(file_descriptor,0,0);
+wd=open(filename.c_str(),O_WRONLY | O_CREAT | O_TRUNC | O_BINARY, S_IREAD | S_IWRITE);
+if(wd<0)
+{
+close(file_descriptor);
+throw ml_exception(string("Cannot Create File : ")+filename);
+}
+column_count=0;
+uint32_t last_index;
+//erase columns and write in file
+while(1)
+{
+bytes_fetched=read(file_descriptor,buffer,BUFFER_SIZE);
+if(bytes_fetched==0) break;
+last_index=0;
+flag=false;
+for(index=0;index<bytes_fetched;++index)
+{
+if(buffer[index]==',')
+{
+if(st.count(column_count)==false) 
+{
+if(flag) write(wd,",",1);
+write(wd,buffer+last_index,index-last_index);
+flag=true;
+}
+last_index=index+1;
+++column_count;
+}
+else if(buffer[index]=='\n') 
+{
+if(st.count(column_count)==false)
+{
+if(flag) write(wd,",",1);
+write(wd,buffer+last_index,index-last_index+1);
+}
+else if(flag) write(wd,"\n",1);
+flag=false;
+last_index=index+1;
+column_count=0;
+}
+} //for loop ends here
+if(index!=last_index && st.count(column_count)==false) 
+{
+if(flag) write(wd,",",1);
+write(wd,buffer+last_index,index-last_index);
+flag=false;
+}
+} //while loop ends here
+close(wd);
+close(file_descriptor);
+}
+
+void dataset_utils::remove_columns(string dataset,string filename,vector<string> &columns_name)
+{
+if(dataset.empty() || filename.empty()) throw ml_exception("File Name Required");
+if(columns_name.empty()) throw ml_exception("No Columns Name Specified To Remove");
+int file_descriptor;
+file_descriptor=open(dataset.c_str(),O_RDONLY | O_BINARY);
+if(file_descriptor<0) throw ml_exception(("Unable To Open File")+dataset);
+auto new_end=unique(columns_name.begin(),columns_name.end());
+columns_name.erase(new_end,columns_name.end());
+for(std::string &str:columns_name)
+{
+for(char &c:str)
+{
+c = std::tolower(static_cast<unsigned char>(c));
+}
+}
+unordered_set<string> st(columns_name.begin(),columns_name.end());
+vector<uint32_t> columns_index;
+uint32_t column_index=0;
+unsigned char buffer[BUFFER_SIZE];
+int bytes_fetched,last_index,index;
+bool flag=false;
+last_index=0;
+string prev="";
+while(1)
+{
+bytes_fetched=read(file_descriptor,buffer,BUFFER_SIZE);
+if(bytes_fetched==0) break;
+last_index=0;
+for(index=0;index<bytes_fetched;++index)
+{
+if(buffer[index]==',')
+{
+string str(reinterpret_cast<const char*>(buffer+last_index),index-last_index);
+str=prev+str;
+prev="";
+std::transform(str.begin(), str.end(), str.begin(), [](unsigned char c) {return std::tolower(c);});
+if(st.count(str))
+{
+columns_index.push_back(column_index);
+}
+++column_index;
+last_index=index+1;
+}
+else if(buffer[index]=='\n')
+{
+string str(reinterpret_cast<const char*>(buffer+last_index),index-last_index);
+str=prev+str;
+if(!str.empty() && str.back() == '\r')
+{
+str.pop_back();
+}
+prev="";
+std::transform(str.begin(), str.end(), str.begin(), [](unsigned char c) {return std::tolower(c);});
+if(st.count(str))
+{
+columns_index.push_back(column_index);
+}
+++column_index;
+last_index=index+1;
+flag=true;
+break;
+}
+}
+if(flag) break;
+if(index!=last_index)
+{
+string s(reinterpret_cast<const char*>(buffer+last_index),index-last_index);
+prev=s;
+}
+}
+close(file_descriptor);
+remove_columns(dataset,filename,columns_index);
 }

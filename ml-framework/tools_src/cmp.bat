@@ -1,0 +1,1 @@
+g++ -O3 -fopenmp %1 -I ..\include -L ..\lib -lml_framework -o %2
