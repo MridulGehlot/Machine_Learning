@@ -13,4 +13,5 @@ static void split(string filename,uint8_t split_percentage,uint64_t header_lines
 static void split(string filename,uint8_t split_percentage,uint64_t header_lines,const string &file1,const string &file2);
 static void remove_columns(string dataset,string filename,vector<uint32_t> &columns_index);
 static void remove_columns(string dataset,string filename,vector<string> &columns_name);
+static void one_hot_encode(string dataset,string filename,vector<string> &columns_name);
 };
