@@ -12,4 +12,5 @@ private:
 csv(){}
 public:
 static void load_x_y(string datasetFileName,matrix &x,matrix &y,uint64_t skipLines);
+static void load_csv(string datasetFileName,matrix &target,uint64_t header_lines);
 };

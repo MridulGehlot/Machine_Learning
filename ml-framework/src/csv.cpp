@@ -3,6 +3,8 @@
 #include<cstdint>
 #include<ml_exception.h>
 #include<matrix.h>
+#include<fcntl.h>
+#define BUFFER_SIZE 4096
 void csv::load_x_y(string datasetFileName,matrix &x,matrix &y,uint64_t skipLines)
 {
 char str[51];
@@ -112,4 +114,85 @@ x.collection[which_row_from_dataset*x_columns+0]=1.0;
 }
 
 fclose(f);
+}
+
+void csv::load_csv(string filename,matrix &target,uint64_t header_lines)
+{
+if(filename.empty()) throw ml_exception("File Name Required");
+int file_descriptor;
+file_descriptor=open(filename.c_str(),O_RDONLY | O_BINARY);
+if(file_descriptor<0) throw ml_exception(string("Unalbe to read file : ")+filename);
+unsigned char buffer[BUFFER_SIZE];
+int bytes_read,index;
+int rows,columns;
+int pos,skip;
+rows=0;
+columns=1;
+pos=0;
+skip=0;
+while(true)
+{
+bytes_read=read(file_descriptor,buffer,BUFFER_SIZE);
+if(bytes_read==0) break;
+for(index=0;index<bytes_read;++index)
+{
+++pos;
+if(buffer[index]==',' && rows==0) ++columns;
+if(buffer[index]=='\n')
+{
+if(rows+1==header_lines) skip=pos;
+++rows;
+}
+}
+}
+if(buffer[index-1]!='\n') ++rows;
+if(header_lines>=rows)
+{
+close(file_descriptor);
+throw ml_exception("Not Enough Data");
+}
+rows-=header_lines;
+target.resize(rows,columns);
+//now reset pointer and populate data
+lseek(file_descriptor,skip,SEEK_SET);
+int which_row,which_column;
+which_row=0;
+which_column=0;
+char str[51];
+int i=0;
+double value;
+while(true)
+{
+bytes_read=read(file_descriptor,buffer,BUFFER_SIZE);
+if(bytes_read==0) break;
+for(index=0;index<bytes_read;++index)
+{
+if(buffer[index]==',')
+{
+str[i]='\0';
+value=atof(str);
+i=0;
+target.set(which_row,which_column,value);
+++which_column;
+}
+else if(buffer[index]=='\n')
+{
+str[i]='\0';
+value=atof(str);
+i=0;
+target.set(which_row,which_column,value);
+which_column=0;
+++which_row;
+}
+else str[i++]=buffer[index];
+}
+}
+if(buffer[index-1]!='\n')
+{
+str[i]='\0';
+value=atof(str);
+i=0;
+target.set(which_row,which_column,value);
+}
+close(file_descriptor);
 }
