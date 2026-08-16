@@ -132,6 +132,13 @@ tmp.collection[j*tmp._columns+i]=this->collection[i*this->_columns+j];
 }
 return tmp;
 }
+matrix matrix::as_inversed()
+{
+if(this->_rows!=this->_columns) throw ml_exception("Invalid Operation : For Inverse Square Matrix Required");
+matrix tmp(this->_rows,this->_columns);
+matrix_math::inverse(tmp.collection.data(),this->collection.data(),this->_rows,this->_columns);
+return tmp;
+}
 void matrix::save_to_csv(string filename)
 {
 FILE *f;

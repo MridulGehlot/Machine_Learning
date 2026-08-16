@@ -1,4 +1,5 @@
 #include<matrix_math.h>
+#include<cmath>
 #include<omp.h>
 #include<string.h>
 #include<iostream>
@@ -86,3 +87,85 @@ uint64_t sz=right_rows*right_columns;
 #pragma omp parallel for
 for(uint64_t i=0;i<sz;++i) target[i]=left/right[i];
 }
+
+void matrix_math::inverse(double *target,double *source,uint64_t rows,uint64_t columns)
+{
+uint64_t idx;
+uint64_t columns_size=columns*2;
+double pivot_value,factor;
+double *tmp,*swap_space;
+tmp=(double *)malloc(sizeof(double)*rows*columns_size);
+if(tmp==nullptr) throw ml_exception("Not Enough Memory");
+swap_space=(double *)malloc(sizeof(double)*columns_size);
+if(swap_space==nullptr)
+{
+free(tmp);
+throw ml_exception("Not Enough Memory");
+}
+for(int i=0;i<rows;++i)
+{
+for(int j=0;j<columns;++j)
+{
+tmp[i*columns_size+j]=source[i*columns+j];
+}
+for(int j=0;j<columns;++j)
+{
+if(i==j) tmp[i*columns_size+j+columns]=1.0;
+else tmp[i*columns_size+j+columns]=0.0;
+}
+}
+//now inverse the matrix
+for(int r=0;r<rows;++r)
+{
+int pivot=r;
+for(idx=r+1;idx<rows;++idx)
+{
+if(fabs(tmp[idx*columns_size+r])>fabs(tmp[pivot*columns_size+r]))
+{
+pivot=idx;
+}
+}
+if(fabs(tmp[pivot*columns_size+r])<1e-12) 
+{
+free(tmp);
+free(swap_space);
+throw ml_exception("Matrix is singular and has no inverse");
+}
+if(pivot!=r)
+{
+//swap them
+for(idx=0;idx<columns_size;++idx)
+{
+swap_space[idx]=tmp[pivot*columns_size+idx];
+}
+for(idx=0;idx<columns_size;++idx)
+{
+tmp[pivot*columns_size+idx]=tmp[r*columns_size+idx];
+tmp[r*columns_size+idx]=swap_space[idx];
+}
+}
+//make tmp[r][r] as 1
+pivot_value=tmp[r*columns_size+r];
+for(idx=0;idx<columns_size;++idx) tmp[r*columns_size+idx]/=pivot_value;
+//make all other values as 0 in this column
+for(idx=0;idx<rows;++idx)
+{
+if(r==idx) continue;
+factor=tmp[idx*columns_size+r];
+for(int c=0;c<columns_size;++c)
+{
+tmp[idx*columns_size+c]-=factor*tmp[r*columns_size+c];
+}
+}
+} //for loop ends here for inversion
+//copy in target
+for(int r=0;r<rows;++r)
+{
+for(int c=0;c<columns;++c)
+{
+target[r*columns+c]=tmp[r*columns_size+c+columns];
+}
+}
+free(tmp);
+free(swap_space);
+} //function ends here

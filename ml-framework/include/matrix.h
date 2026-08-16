@@ -52,6 +52,7 @@ uint64_t columns();
 void set(uint64_t row_index,uint64_t column_index,double value);
 double get(uint64_t row_index,uint64_t column_index);
 matrix as_transposed();
+matrix as_inversed();
 void save(string filename,uint8_t flags);
 static matrix identity(uint64_t rows);
 matrix_row operator[](uint64_t row_index);

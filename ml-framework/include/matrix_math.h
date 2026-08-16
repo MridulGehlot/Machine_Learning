@@ -19,4 +19,6 @@ static void multiply(double *target,double left,double *right,uint64_t right_row
 static void add(double *target,double left,double *right,uint64_t right_rows,uint64_t right_columns);
 static void subtract(double *target,double left,double *right,uint64_t right_rows,uint64_t right_columns);
 static void divide(double *target,double left,double *right,uint64_t right_rows,uint64_t right_columns);
+
+static void inverse(double *target,double *source,uint64_t rows,uint64_t columns);
 };
