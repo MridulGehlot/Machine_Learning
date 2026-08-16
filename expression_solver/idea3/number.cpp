@@ -1,3 +1,4 @@
+#pragma GCC diagnostic error "-Wunused-result"
 #include<iostream>
 #include<thread>
 using namespace std;
@@ -41,10 +42,10 @@ char oper;
 int flags;
 expression();
 ~expression();
-expression & operator+(const number &);
-expression & operator+(const expression &);
-expression & operator*(const number &);
-expression & operator*(const expression &);
+__attribute__((warn_unused_result)) expression & operator+(const number &);
+__attribute__((warn_unused_result)) expression & operator+(const expression &);
+__attribute__((warn_unused_result)) expression & operator*(const number &);
+__attribute__((warn_unused_result)) expression & operator*(const expression &);
 };
 
 class number
@@ -54,10 +55,10 @@ public:
 number();
 number(int);
 int get();
-expression & operator+(const number &);
-expression & operator+(const expression &);
-expression & operator*(const number &);
-expression & operator*(const expression &);
+__attribute__((warn_unused_result)) expression & operator+(const number &);
+__attribute__((warn_unused_result)) expression & operator+(const expression &);
+__attribute__((warn_unused_result)) expression & operator*(const number &);
+__attribute__((warn_unused_result)) expression & operator*(const expression &);
 number & operator=(expression &);
 friend class expression;
 };
@@ -93,7 +94,7 @@ expression::~expression()
 {
 delete this->result;
 }
-expression & expression::operator+(const number &right_operand)
+__attribute__((warn_unused_result)) expression & expression::operator+(const number &right_operand)
 {
 if(expression::expr_vector.tail==expression::expr_vector.size)
 {
@@ -108,7 +109,7 @@ t->flags=LEFT_IS_EXPRESSION | RIGHT_IS_NUMBER;
 ++(expression::expr_vector.tail);
 return *t;
 }
-expression & expression::operator+(const expression &right_operand)
+__attribute__((warn_unused_result)) expression & expression::operator+(const expression &right_operand)
 {
 if(expression::expr_vector.tail==expression::expr_vector.size)
 {
@@ -123,7 +124,7 @@ t->flags=LEFT_IS_EXPRESSION | RIGHT_IS_EXPRESSION;
 ++(expression::expr_vector.tail);
 return *t;
 }
-expression & expression::operator*(const number &right_operand)
+__attribute__((warn_unused_result)) expression & expression::operator*(const number &right_operand)
 {
 if(expression::expr_vector.tail==expression::expr_vector.size)
 {
@@ -138,7 +139,7 @@ t->flags=LEFT_IS_EXPRESSION | RIGHT_IS_NUMBER;
 ++(expression::expr_vector.tail);
 return *t;
 }
-expression & expression::operator*(const expression &right_operand)
+__attribute__((warn_unused_result)) expression & expression::operator*(const expression &right_operand)
 {
 if(expression::expr_vector.tail==expression::expr_vector.size)
 {
@@ -167,7 +168,7 @@ int number::get()
 {
 return this->num;
 }
-expression & number::operator+(const number &right_operand)
+__attribute__((warn_unused_result)) expression & number::operator+(const number &right_operand)
 {
 if(expression::expr_vector.tail==expression::expr_vector.size)
 {
@@ -182,7 +183,7 @@ t->flags=LEFT_IS_NUMBER | RIGHT_IS_NUMBER;
 ++(expression::expr_vector.tail);
 return *t;
 }
-expression & number::operator+(const expression &right_operand)
+__attribute__((warn_unused_result)) expression & number::operator+(const expression &right_operand)
 {
 if(expression::expr_vector.tail==expression::expr_vector.size)
 {
@@ -197,7 +198,7 @@ t->flags=LEFT_IS_NUMBER | RIGHT_IS_EXPRESSION;
 ++(expression::expr_vector.tail);
 return *t;
 }
-expression & number::operator*(const number &right_operand)
+__attribute__((warn_unused_result)) expression & number::operator*(const number &right_operand)
 {
 if(expression::expr_vector.tail==expression::expr_vector.size)
 {
@@ -212,7 +213,7 @@ t->flags=LEFT_IS_NUMBER | RIGHT_IS_NUMBER;
 ++(expression::expr_vector.tail);
 return *t;
 }
-expression & number::operator*(const expression &right_operand)
+__attribute__((warn_unused_result)) expression & number::operator*(const expression &right_operand)
 {
 if(expression::expr_vector.tail==expression::expr_vector.size)
 {
