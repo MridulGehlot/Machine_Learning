@@ -15,9 +15,9 @@ uint64_t _rows;
 uint64_t _columns;
 uint64_t flags;
 vector<double> collection;
-void resize(uint64_t rows,uint64_t columns);  //not safe
-void save_to_binary(string filename);
-void save_to_csv(string filename);
+void resize(uint64_t rows,uint64_t columns);
+void save_to_binary(string filename) const;
+void save_to_csv(string filename) const;
 public:
 class matrix_row;
 class matrix_cell
@@ -26,7 +26,7 @@ uint64_t row_index,column_index;
 matrix *m;
 matrix_cell(uint64_t row_index,uint64_t column_index,matrix *m);
 public:
-operator double();
+operator double() const;
 matrix_cell & operator=(double value);
 friend class matrix_row;
 };
@@ -47,13 +47,13 @@ matrix(matrix && other);
 matrix & operator=(const matrix &other);
 matrix & operator=(matrix &&other);
 ~matrix();
-uint64_t rows();
-uint64_t columns();
+uint64_t rows() const;
+uint64_t columns() const;
 void set(uint64_t row_index,uint64_t column_index,double value);
-double get(uint64_t row_index,uint64_t column_index);
-matrix as_transposed();
-matrix as_inversed();
-void save(string filename,uint8_t flags);
+double get(uint64_t row_index,uint64_t column_index) const;
+matrix as_transposed() const;
+matrix as_inversed() const;
+void save(string filename,uint8_t flags) const;
 static matrix identity(uint64_t rows);
 matrix_row operator[](uint64_t row_index);
 //arithmetic operators
@@ -61,35 +61,35 @@ matrix operator++(); //prefix
 matrix operator++(int); //postfix
 matrix operator--();
 matrix operator--(int);
-matrix operator*(matrix &other);
-matrix operator+(matrix &other);
-matrix operator-(const matrix &other);
-matrix operator*=(matrix &other);
-matrix operator+=(matrix &other);
-matrix operator-=(matrix &other);
-matrix operator*(double value);
-matrix operator+(double value);
-matrix operator-(double value);
-matrix operator/(double value);
+matrix operator*(const matrix &other) const;
+matrix operator+(const matrix &other) const;
+matrix operator-(const matrix &other) const;
+matrix operator*=(const matrix &other);
+matrix operator+=(const matrix &other);
+matrix operator-=(const matrix &other);
+matrix operator*(double value) const;
+matrix operator+(double value) const;
+matrix operator-(double value) const;
+matrix operator/(double value) const;
 matrix operator*=(double value);
 matrix operator+=(double value);
 matrix operator-=(double value);
 matrix operator/=(double value);
-matrix operator-();
-matrix operator^(uint64_t value);
+matrix operator-() const;
+matrix operator^(uint64_t value) const;
 //one more mehtod required to calculate element wise power
 friend class csv;
 friend class scaler;
 friend class random_engine;
 friend class dataset_utils;
 friend class ml_math;
-friend matrix operator+(double value,matrix &other);
-friend matrix operator-(double value,matrix &other);
-friend matrix operator*(double value,matrix &other);
-friend matrix operator/(double value,matrix &other);
+friend matrix operator+(double value,const matrix &other);
+friend matrix operator-(double value,const matrix &other);
+friend matrix operator*(double value,const matrix &other);
+friend matrix operator/(double value,const matrix &other);
 };
 //independent functions
-matrix operator+(double value,matrix &other);
-matrix operator-(double value,matrix &other);
-matrix operator*(double value,matrix &other);
-matrix operator/(double value,matrix &other);
+matrix operator+(double value,const matrix &other);
+matrix operator-(double value,const matrix &other);
+matrix operator*(double value,const matrix &other);
+matrix operator/(double value,const matrix &other);

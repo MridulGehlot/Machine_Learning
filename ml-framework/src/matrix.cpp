@@ -78,11 +78,11 @@ matrix::~matrix()
 }
 
 //public methods
-uint64_t matrix::rows()
+uint64_t matrix::rows()const
 {
 return this->_rows;
 }
-uint64_t matrix::columns()
+uint64_t matrix::columns() const 
 {
 return this->_columns;
 }
@@ -106,7 +106,7 @@ for(idx=0;idx<this->collection.size();idx+=(this->_columns+1)) this->collection[
 }
 this->collection[row_index*this->_columns+column_index]=value;
 }
-double matrix::get(uint64_t row_index,uint64_t column_index)
+double matrix::get(uint64_t row_index,uint64_t column_index) const
 {
 if(row_index>=this->_rows || column_index>=this->_columns)
 {
@@ -119,7 +119,7 @@ else return 0.0;
 }
 return this->collection[row_index*this->_columns+column_index];
 }
-matrix matrix::as_transposed()
+matrix matrix::as_transposed() const
 {
 matrix tmp(this->_columns,this->_rows);
 for(uint64_t i=0;i<this->_rows;++i)
@@ -132,21 +132,21 @@ tmp.collection[j*tmp._columns+i]=this->collection[i*this->_columns+j];
 }
 return tmp;
 }
-matrix matrix::as_inversed()
+matrix matrix::as_inversed() const
 {
 if(this->_rows!=this->_columns) throw ml_exception("Invalid Operation : For Inverse Square Matrix Required");
 matrix tmp(this->_rows,this->_columns);
 matrix_math::inverse(tmp.collection.data(),this->collection.data(),this->_rows,this->_columns);
 return tmp;
 }
-void matrix::save_to_csv(string filename)
+void matrix::save_to_csv(string filename) const
 {
 FILE *f;
 f=fopen(filename.c_str(),"w");
 if(f==nullptr) throw ml_exception(string("Unable to write in file : ")+filename);
 uint64_t r,c,ep;
 ep=this->_columns-1;
-double *ptr=this->collection.data();
+const double *ptr=this->collection.data();
 for(r=0;r<this->_rows;++r)
 {
 for(c=0;c<ep;++c) fprintf(f,"%.17g,",ptr[r*this->_columns+c]);
@@ -154,7 +154,7 @@ fprintf(f,"%.17g\n",ptr[r*this->_columns+c]);
 }
 fclose(f);
 }
-void matrix::save_to_binary(string filename)
+void matrix::save_to_binary(string filename) const
 {
 //Little Endian and Big Endian
 //we will covenrt to network byte order and write and use same to read
@@ -166,7 +166,7 @@ fwrite(&(this->_columns),sizeof(uint64_t),1,f);
 fwrite(this->collection.data(),this->_rows*this->_columns*sizeof(double),1,f);
 fclose(f);
 }
-void matrix::save(string filename,uint8_t flags)
+void matrix::save(string filename,uint8_t flags) const
 {
 if(flags==FMT_BINARY) save_to_binary(filename);
 else if(flags==FMT_CSV) save_to_csv(filename);
@@ -186,7 +186,7 @@ this->row_index=row_index;
 this->column_index=column_index;
 this->m=m;
 }
-matrix::matrix_cell:: operator double()
+matrix::matrix_cell:: operator double() const
 {
 return this->m->get(this->row_index,this->column_index);
 }
@@ -239,97 +239,97 @@ tmp=*this;
 matrix_math::subtract(this->collection.data(),this->collection.data(),this->_rows,this->_columns,1.0);
 return tmp;
 }
-matrix matrix::operator*(matrix &other)
+matrix matrix::operator*(const matrix &other) const
 {
 if(this->_columns!=other._rows) throw ml_exception("Invalid Dimensions (row - column mismatch) ");
 matrix tmp(this->_rows,other._columns);
 matrix_math::multiply(tmp.collection.data(),this->collection.data(),this->_rows,this->_columns,other.collection.data(),other._rows,other._columns);
 return tmp;
 }
-matrix matrix::operator+(matrix &other)
+matrix matrix::operator+(const matrix &other) const
 {
 if(this->_rows!=other._rows || this->_columns!=other._columns) throw ml_exception("Invalid Dimensions (row - column mismatch) ");
 matrix tmp(this->_rows,this->_columns);
 matrix_math::add(tmp.collection.data(),this->collection.data(),other.collection.data(),this->collection.size());
 return tmp;
 }
-matrix matrix::operator-(const matrix &other)
+matrix matrix::operator-(const matrix &other) const
 {
 if(this->_rows!=other._rows || this->_columns!=other._columns) throw ml_exception("Invalid Dimensions (row - column mismatch) ");
 matrix tmp(this->_rows,this->_columns);
 matrix_math::subtract(tmp.collection.data(),this->collection.data(),other.collection.data(),this->collection.size());
 return tmp;
 }
-matrix matrix::operator*=(matrix &other)
+matrix matrix::operator*=(const matrix &other)
 {
 if(this->_columns!=other._rows) throw ml_exception("Invalid Dimensions (row - column mismatch) ");
 matrix tmp(this->_rows,this->_columns);
 matrix_math::multiply(tmp.collection.data(),this->collection.data(),this->_rows,this->_columns,other.collection.data(),other._rows,other._columns);
 return tmp;
 }
-matrix matrix::operator+=(matrix &other)
+matrix matrix::operator+=(const matrix &other)
 {
 if(this->_rows!=other._rows || this->_columns!=other._columns) throw ml_exception("Invalid Dimensions (row - column mismatch) ");
 matrix_math::add(this->collection.data(),this->collection.data(),other.collection.data(),this->collection.size());
 return *this;
 }
-matrix matrix::operator-=(matrix &other)
+matrix matrix::operator-=(const matrix &other)
 {
 if(this->_rows!=other._rows || this->_columns!=other._columns) throw  ml_exception("Invalid Dimensions (row - column mismatch) ");
 matrix_math::subtract(this->collection.data(),this->collection.data(),other.collection.data(),this->collection.size());
 return *this;
 }
-matrix matrix::operator*(double value)
+matrix matrix::operator*(const double value) const
 {
 matrix tmp(this->_rows,this->_columns);
 matrix_math::multiply(tmp.collection.data(),this->collection.data(),this->_rows,this->_columns,value);
 return tmp;
 }
-matrix matrix::operator+(double value)
+matrix matrix::operator+(const double value) const
 {
 matrix tmp(this->_rows,this->_columns);
 matrix_math::add(tmp.collection.data(),this->collection.data(),this->_rows,this->_columns,value);
 return tmp;
 }
-matrix matrix::operator-(double value)
+matrix matrix::operator-(const double value) const
 {
 matrix tmp(this->_rows,this->_columns);
 matrix_math::subtract(tmp.collection.data(),this->collection.data(),this->_rows,this->_columns,value);
 return tmp;
 }
-matrix matrix::operator/(double value)
+matrix matrix::operator/(const double value) const
 {
 if(value==0) throw ml_exception("Division by 0 not allowed");
 matrix tmp(this->_rows,this->_columns);
 matrix_math::divide(tmp.collection.data(),this->collection.data(),this->_rows,this->_columns,value);
 return tmp;
 }
-matrix matrix::operator*=(double value)
+matrix matrix::operator*=(const double value)
 {
 matrix_math::multiply(this->collection.data(),this->collection.data(),this->_rows,this->_columns,value);
 return *this;
 }
-matrix matrix::operator+=(double value)
+matrix matrix::operator+=(const double value)
 {
 matrix_math::add(this->collection.data(),this->collection.data(),this->_rows,this->_columns,value);
 return *this;
 }
-matrix matrix::operator-=(double value)
+matrix matrix::operator-=(const double value)
 {
 matrix_math::subtract(this->collection.data(),this->collection.data(),this->_rows,this->_columns,value);
 return *this;
 }
-matrix matrix::operator/=(double value)
+matrix matrix::operator/=(const double value)
 {
 if(value==0) throw ml_exception("Division by 0 not allowed");
 matrix_math::divide(this->collection.data(),this->collection.data(),this->_rows,this->_columns,value);
 return *this;
 }
-matrix matrix::operator-()
+matrix matrix::operator-() const
 {
 return (*this)*(-1);
 }
-matrix matrix::operator^(uint64_t value)
+matrix matrix::operator^(uint64_t value) const
 {
 if(this->_rows!=this->_columns) throw ml_exception("For Matrix ^power operations it should be square matrix");
 if(value==0) //return identity matrix
@@ -345,25 +345,25 @@ return tmp;
 
 
 //independent functions
-matrix operator+(double value,matrix &other)
+matrix operator+(double value,const matrix &other)
 {
 matrix tmp(other._rows,other._columns);
 matrix_math::add(tmp.collection.data(),value,other.collection.data(),other._rows,other._columns);
 return tmp;
 }
-matrix operator-(double value,matrix &other)
+matrix operator-(double value,const matrix &other)
 {
 matrix tmp(other._rows,other._columns);
 matrix_math::subtract(tmp.collection.data(),value,other.collection.data(),other._rows,other._columns);
 return tmp;
 }
-matrix operator*(double value,matrix &other)
+matrix operator*(double value,const matrix &other)
 {
 matrix tmp(other._rows,other._columns);
 matrix_math::multiply(tmp.collection.data(),value,other.collection.data(),other._rows,other._columns);
 return tmp;
 }
-matrix operator/(double value,matrix &other)
+matrix operator/(double value,const matrix &other)
 {
 matrix tmp(other._rows,other._columns);
 matrix_math::divide(tmp.collection.data(),value,other.collection.data(),other._rows,other._columns);
