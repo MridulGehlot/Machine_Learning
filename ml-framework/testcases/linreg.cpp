@@ -23,7 +23,8 @@ while(cycle<=TRAINING_CYCLES)
 y_hat=x*model;
 error=y_hat-y;
 mse=ml_math::mean_squared_error(y_hat,y);
-cost=mse/(2*x.rows());
+// wrong   cost=mse/(2*x.rows());
+cost=mse/2.0;
 if(cycle%STOPPER==0) printf("Cost - %30.20lf\n",cost);
 model = model - (((xt*error)*LEARNING_RATE)/x.rows());
 ++cycle;

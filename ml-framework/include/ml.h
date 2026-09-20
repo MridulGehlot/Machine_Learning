@@ -7,3 +7,4 @@
 #include<random_engine.h>
 #include<dataset_utils.h>
 #include<linear_regression.h>
+#include<plotter.h>
