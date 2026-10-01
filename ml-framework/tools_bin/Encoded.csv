@@ -1,6 +1,6 @@
-name,gender_female,gender_male,age
-anil,0,1,12
-babli,1,0,21
-chetan,0,1,45
-denial,0,1,55
-elife,1,0,78
+name,gender,age
+anil,37.333333,12
+babli,49.500000,21
+chetan,37.333333,45
+denial,37.333333,55
+elife,49.500000,78

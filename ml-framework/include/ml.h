@@ -1,5 +1,6 @@
 #pragma once
 #include<ml_exception.h>
+#include<encoder.h>
 #include<matrix.h>
 #include<csv.h>
 #include<scaler.h>
@@ -8,3 +9,4 @@
 #include<dataset_utils.h>
 #include<linear_regression.h>
 #include<plotter.h>
+#include<matrix_math.h>

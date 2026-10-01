@@ -9,7 +9,7 @@ int main(int argc, char *argv[])
 if(argc<5)
 {
 cout<<"[Invalid Number of Arguments]"<<endl;
-cout<<"split_dataset Required Minimum 3 Arguments, Passed : "<<argc<<endl;
+cout<<"remove_columns Required Minimum 4 Arguments, Passed : "<<(argc-1)<<endl;
 cout<<"First Argument : Dataset File Name"<<endl;
 cout<<"Second Argument : File Name"<<endl;
 cout<<"Third Argument Type : name/index"<<endl;

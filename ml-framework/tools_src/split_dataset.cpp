@@ -9,7 +9,7 @@ int main(int argc, char *argv[])
 if(argc!=6)
 {
 cout<<"[Invalid Number of Arguments]"<<endl;
-cout<<"split_dataset Required 5 Arguments, Passed : "<<argc<<endl;
+cout<<"split_dataset Required 5 Arguments, Passed : "<<(argc-1)<<endl;
 cout<<"First Argument : Dataset File Name To Split"<<endl;
 cout<<"Second Argument : Split Percentage To Put in First File"<<endl;
 cout<<"Third Argument : Header Lines To Skip"<<endl;

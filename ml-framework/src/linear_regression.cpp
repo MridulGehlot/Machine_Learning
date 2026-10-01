@@ -2,7 +2,7 @@
 #include<matrix.h>
 #include<ml_math.h>
 
-matrix linear_regression::normal_eqation_fit(matrix &x,matrix &y)
+matrix linear_regression::normal_equation_fit(matrix &x,matrix &y)
 {
 matrix x_t,model,tt,temp;
 x_t=x.as_transposed();

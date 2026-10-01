@@ -13,8 +13,8 @@ double ml_math::l2_error(matrix &y_hat,matrix &y,matrix &model,double lambda)
 {
 double mse=ml_math::mean_squared_error(y_hat,y);
 double squared_sum=0.0;
-//skip last row which is intercept c
-for(uint32_t i=0;i<model.rows()-1;++i) squared_sum+=pow(model[i][0],2);
+//skip 1st row which is intercept c
+for(uint32_t i=1;i<model.rows();++i) squared_sum+=pow(model[i][0],2);
 double penalty=(lambda/(2*y.rows()))*squared_sum;
 return mse+penalty;
 }
@@ -23,8 +23,8 @@ double ml_math::elastic_net_error(matrix &y_hat,matrix &y,matrix &model,double l
 {
 double l2_error=ml_math::l2_error(y_hat,y,model,lambda2);
 double absolute_sum=0.0;
-//skip last row which is intercept c
-for(uint32_t i=0;i<model.rows()-1;++i) absolute_sum+=abs(model[i][0]);
+//skip 1st row which is intercept c
+for(uint32_t i=1;i<model.rows();++i) absolute_sum+=abs(model[i][0]);
 double l1_penalty=(lambda1/y.rows())*absolute_sum;
 return l2_error+l1_penalty;
 }

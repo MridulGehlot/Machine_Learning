@@ -9,7 +9,7 @@ int on_epoch_callback(double cost,uint64_t training_cycle_number,const matrix &x
 {
 double px1,py1,px2,py2,m,c;
 if(training_cycle_number%20==0 || training_cycle_number<100)
-//if(training_cycle_number % 50 == 0)
+//if(training_cycle_number % 1000 == 0)
 {
 cout<<"After training cycle number : "<<training_cycle_number<<", cost is "<<setprecision(17)<<cost<<endl;
 cost_graph.add(point(training_cycle_number,cost));
@@ -35,7 +35,7 @@ FILE *f;
 double learning_rate=LEARNING_RATE;
 double regularization_parameter=REGULARIZATION_PARAMETER;
 matrix x,y;
-csv::load_x_y("training_icecream_sales.csv",x,y,1);
+csv::load_x_y("training.csv",x,y,1);
 matrix min_max=scaler::min_max_scaler(x);
 f=fopen("icecream_sales_scaled_training_data.csv","w");
 size_t rows_sz=x.rows();
@@ -68,14 +68,14 @@ for(int i=0;i<x_rows;++i)
 {
 line_fit_graph.add(point(x.get(i,1),y.get(i,0)));
 }
-matrix model=linear_regression::batch_gradient_fit(x,y,learning_rate,regularization_parameter,10000,MEAN_SQUARED_ERROR,on_epoch_callback);
+matrix model=linear_regression::batch_gradient_fit(x,y,learning_rate,regularization_parameter,TRAINING_CYCLES,MEAN_SQUARED_ERROR,on_epoch_callback);
 // save model
 model.save("icecream_sales_model.csv",FMT_CSV);
 // save min_max
 min_max.save("icecream_sales_min_max.csv",FMT_CSV);
 //calculate r2score
 matrix x_test,y_test;
-csv::load_x_y("testing_icecream_sales.csv",x_test,y_test,1);
+csv::load_x_y("testing.csv",x_test,y_test,1);
 scaler::min_max_scaler(x_test,min_max);
 matrix y_hat_test(y_test.rows(),1);
 y_hat_test=x_test*model;
