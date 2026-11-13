@@ -54,6 +54,7 @@ double get(uint64_t row_index,uint64_t column_index) const;
 matrix as_transposed() const;
 matrix as_inversed() const;
 void save(string filename,uint8_t flags) const;
+void load_from_binary(string filename);
 static matrix identity(uint64_t rows);
 matrix_row operator[](uint64_t row_index);
 //arithmetic operators
@@ -83,6 +84,7 @@ friend class scaler;
 friend class random_engine;
 friend class dataset_utils;
 friend class ml_math;
+friend class linear_regression;
 friend matrix operator+(double value,const matrix &other);
 friend matrix operator-(double value,const matrix &other);
 friend matrix operator*(double value,const matrix &other);

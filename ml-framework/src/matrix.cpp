@@ -157,7 +157,7 @@ fclose(f);
 void matrix::save_to_binary(string filename) const
 {
 //Little Endian and Big Endian
-//we will covenrt to network byte order and write and use same to read
+//we will convert to network byte order and write and use same to read
 //for now i am not implementing this
 FILE *f=fopen(filename.c_str(),"wb");
 if(f==nullptr) throw ml_exception("Unable to save in a file : "+filename);
@@ -165,6 +165,17 @@ fwrite(&(this->_rows),sizeof(uint64_t),1,f);
 fwrite(&(this->_columns),sizeof(uint64_t),1,f);
 fwrite(this->collection.data(),this->_rows*this->_columns*sizeof(double),1,f);
 fclose(f);
+}
+void matrix::load_from_binary(string filename)
+{
+if(filename.empty()) throw ml_exception("Filname cannot be empty");
+FILE *f=fopen(filename.c_str(),"rb");
+if(f==nullptr) throw ml_exception("Cannot Open File : "+filename);
+fread(&(this->_rows),sizeof(uint64_t),1,f);
+fread(&(this->_columns),sizeof(uint64_t),1,f);
+this->collection.reserve(this->_rows*this->_columns);
+this->collection.resize(this->_rows*this->_columns);
+fread(this->collection.data(),sizeof(double)*this->_rows*this->_columns,1,f);
 }
 void matrix::save(string filename,uint8_t flags) const
 {

@@ -1,6 +1,7 @@
-name,gender,age
-anil,37.333333,12
-babli,49.500000,21
-chetan,37.333333,45
-denial,37.333333,55
-elife,49.500000,78
+customer_id,age,location_Beach,location_City,sales_amount
+101,25,0,1,100
+102,34,1,0,150
+103,29,-1,-1,80
+104,45,0,1,100
+105,22,1,0,150
+106,31,-1,-1,80

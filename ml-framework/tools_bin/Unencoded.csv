@@ -1,6 +1,7 @@
-name,gender,age
-anil,male,12
-babli,female,21
-chetan,male,45
-denial,male,55
-elife,female,78
+customer_id,age,location,sales_amount
+101,25,City,100
+102,34,Beach,150
+103,29,Mall,80
+104,45,City,100
+105,22,Beach,150
+106,31,Mall,80

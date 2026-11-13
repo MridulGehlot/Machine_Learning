@@ -541,6 +541,311 @@ fclose(source_file);
 
 //sum encoder
 void encoder::sum_encode(string dataset,string filename,vector<string> &columns_name)
-{}
+{
+if(dataset.empty()) throw ml_exception("Dataset File Name Required");
+if(filename.empty()) throw ml_exception("File Name Required");
+if(columns_name.empty()) throw ml_exception("No Columns To Encode");
+struct stat s;
+if(stat(dataset.c_str(),&s)<0)
+{
+throw ml_exception("Dataset File Does Not Exists");
+}
+FILE *source_file;
+source_file=fopen(dataset.c_str(),"rb");
+if(source_file==nullptr)
+{
+throw ml_exception("Unable To Open Dataset File");
+}
+
+//variables for reading
+set<string> st(columns_name.begin(),columns_name.end());
+char buffer[BUFFER_SIZE];
+uint64_t bytes_to_read,bytes_read,read_size,idx;
+read_size=BUFFER_SIZE;
+bytes_to_read=s.st_size;
+string header="";
+while(bytes_to_read>0)
+{
+if(bytes_to_read<read_size) read_size=bytes_to_read;
+bytes_read=fread(buffer,sizeof(char),read_size,source_file);
+bytes_to_read-=bytes_read;
+for(idx=0;idx<bytes_read;++idx)
+{
+if(buffer[idx]=='\n')
+{
+header=header+string(buffer,idx);
+break;
+}
+}//for loop ends
+if(idx<bytes_read && buffer[idx]=='\n') break;
+header+=string(buffer,bytes_read);
+}//while loop ends
+fclose(source_file);
+vector<uint64_t> columns_index;
+int column=0;
+int last=0;
+for(int i=0;i<header.size();++i)
+{
+if(header[i]==',')
+{
+string s=header.substr(last,i-last);
+if(st.count(s)) columns_index.push_back(column);
+++column;
+last=i+1;
+}
+}
+string tmp=header.substr(last);
+while(tmp.back()=='\n' || tmp.back()=='\r') tmp.pop_back();
+if(st.count(tmp)) columns_index.push_back(column);
+if(columns_index.empty()) throw ml_exception("No Columns to encode");
+encoder::sum_encode(dataset,filename,columns_index,true);
+}
 void encoder::sum_encode(string dataset,string filename,vector<uint64_t> &columns_index,bool has_header)
-{}
+{
+if(dataset.empty()) throw ml_exception("Dataset File Name Required");
+if(filename.empty()) throw ml_exception("File Name Required");
+if(columns_index.empty()) throw ml_exception("No Columns To Encode");
+struct stat s;
+if(stat(dataset.c_str(),&s)<0)
+{
+throw ml_exception("Dataset File Does Not Exists");
+}
+FILE *source_file;
+source_file=fopen(dataset.c_str(),"rb");
+if(source_file==nullptr)
+{
+throw ml_exception("Unable To Open Dataset File");
+}
+FILE *target_file;
+target_file=fopen(filename.c_str(),"wb");
+if(target_file==nullptr)
+{
+fclose(source_file);
+throw ml_exception("Unable To Open Target File");
+}
+//variables for reading
+vector<uint64_t> lines_info;
+char buffer[BUFFER_SIZE];
+uint64_t bytes_to_read,bytes_read,read_size,idx,column_count,sz,fattest_length;
+uint64_t row,column;
+read_size=BUFFER_SIZE;
+bytes_to_read=s.st_size;
+sz=0;
+fattest_length=0;
+row=0;
+column=1;
+int last=0;
+while(bytes_to_read>0)
+{
+if(bytes_to_read<read_size) read_size=bytes_to_read;
+bytes_read=fread(buffer,sizeof(char),read_size,source_file);
+bytes_to_read-=bytes_read;
+for(idx=0;idx<bytes_read;++idx)
+{
+++sz;
+if(buffer[idx]==',') 
+{
+++column;
+}
+if(buffer[idx]=='\n')
+{
+if(row==0 && !has_header) column_count=column;
+if(row==1 && has_header) column_count=column;
+if(sz>fattest_length) fattest_length=sz;
+lines_info.push_back(sz);
+sz=0;
+column=1;
+++row;
+}
+}//for loop ends
+}//while loop ends
+if(sz!=0)
+{
+lines_info.push_back(sz);
+sz=0;
+}
+//ds for encoding
+double value;
+int i,j,k;
+char * line = new char [fattest_length+1];
+char ** ptr = new char *[column_count];
+sort(columns_index.begin(),columns_index.end());
+auto it=unique(columns_index.begin(),columns_index.end());
+columns_index.erase(it,columns_index.end());
+for(auto x:columns_index)
+{
+if(x>=column_count)
+{
+fclose(source_file);
+fclose(target_file);
+throw ml_exception("Invalid Column Index To Encode : "+to_string(x));
+}
+}
+map<int,set<string>> mp;
+rewind(source_file);
+idx=0;
+while(idx<lines_info.size())
+{
+sz=lines_info[idx];
+fread(line,sizeof(char),sz,source_file);
+if(has_header && idx==0)
+{
+++idx;
+continue;
+}
+//process line
+j=sz-1;
+while(line[j]=='\n' || line[j]=='\r') --j;
+line[j+1]='\0';
+j=0;
+ptr[j++]=&line[0];
+for(i=0;line[i]!='\0';++i)
+{
+if(line[i]==',')
+{
+line[i]='\0';
+ptr[j++]=&line[i+1];
+}
+}
+//now i have splits ready
+k=0;
+for(i=0;i<column_count;++i)
+{
+string s(ptr[i]);
+if(columns_index[k]==i)
+{
+mp[i].insert(s);
+if(k<columns_index.size()) ++k;
+}
+}
+++idx;
+}
+//now the ds is ready we just have to write everything in file
+
+int new_column_count=column_count-columns_index.size();
+for(auto &s:mp)
+{
+new_column_count+=s.second.size()-1;
+}
+//write header
+
+rewind(source_file);
+sz=lines_info[0];
+fread(line,sizeof(char),sz,source_file);
+j=sz-1;
+while(line[j]=='\n' || line[j]=='\r') --j;
+line[j+1]='\0';
+j=0;
+ptr[j++]=&line[0];
+for(i=0;line[i]!='\0';++i)
+{
+if(line[i]==',')
+{
+line[i]='\0';
+ptr[j++]=&line[i+1];
+}
+}
+//now i have splits ready
+j=0;
+for(k=0;k<column_count;++k)
+{
+if(mp.count(k)) //this column is to be encoded
+{
+string start(ptr[k]);
+//iterate set
+auto st=mp[k];
+if(st.size()==1)
+{
+fclose(target_file);
+fclose(source_file);
+throw ml_exception("Column :"+to_string(k+1)+" has only 1 unique value hence cannot encode.");
+}
+for(auto it=st.begin();it!=std::prev(st.end());++it)
+{
+string s=*it;
+s=start+"_"+s;
+fwrite(s.c_str(),sizeof(char),s.size(),target_file);
+if(j<new_column_count-1) fwrite(",",sizeof(char),1,target_file);
+++j;
+}
+}
+else
+{
+fwrite(ptr[k],sizeof(char),strlen(ptr[k]),target_file);
+}
+if(j<new_column_count-1) fwrite(",",sizeof(char),1,target_file);
+++j;
+}
+fwrite("\n",sizeof(char),1,target_file);
+
+//write data
+idx=1;
+while(idx<lines_info.size())
+{
+sz=lines_info[idx];
+fread(line,sizeof(char),sz,source_file);
+//process line
+j=sz-1;
+while(line[j]=='\n' || line[j]=='\r') --j;
+line[j+1]='\0';
+j=0;
+ptr[j++]=&line[0];
+for(i=0;line[i]!='\0';++i)
+{
+if(line[i]==',')
+{
+line[i]='\0';
+ptr[j++]=&line[i+1];
+}
+}
+//now i have splits ready
+k=0;
+int count=1;
+for(i=0;i<column_count;++i)
+{
+string s(ptr[i]);
+if(columns_index[k]==i)
+{
+auto st=mp[i];
+//now check if it is a reference Column ?
+auto it=prev(st.end());
+string str=*it;
+if(str==s)
+{
+for(j=0;j<st.size()-1;++j)
+{
+fprintf(target_file,"%d",-1);
+if(count<new_column_count) fprintf(target_file,"%c",',');
+++count;
+}
+}
+else //not a reference column
+{
+for(auto it=st.begin();it!=std::prev(st.end());++it)
+{
+string str=*it;
+if(s==str) fprintf(target_file,"%d",1);
+else fprintf(target_file,"%d",0);
+if(count<new_column_count) fprintf(target_file,"%c",',');
+++count;
+}
+}
+if(k<columns_index.size()) ++k;
+}
+else 
+{
+fprintf(target_file,"%s",s.c_str());
+if(count<new_column_count) fprintf(target_file,"%c",',');
+++count;
+}
+} //for loop ends here
+fprintf(target_file,"\n");
+++idx;
+}
+
+delete [] ptr;
+delete [] line;
+
+fclose(target_file);
+fclose(source_file);
+}
